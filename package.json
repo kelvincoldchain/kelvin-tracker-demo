@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "You can download any book related to computer",
   "main": "server.js",
-  "start": "node server.js"
+  "scripts": {
+    "start": "node server.js"
       },
   "author": "Yuvraj (Backchod Billa)",
-  "license": "BSD-2-Clause",
   "dependencies": {
     "express": "~4.13.3",
     "static-favicon": "~1.0.0",
