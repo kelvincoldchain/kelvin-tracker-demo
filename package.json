@@ -1,0 +1,23 @@
+{
+  "name": "ITBooks",
+  "version": "1.0.0",
+  "description": "You can download any book related to computer",
+  "main": "server.js",
+  "start": "node server.js"
+      },
+  "author": "Yuvraj (Backchod Billa)",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "~4.13.3",
+    "static-favicon": "~1.0.0",
+    "morgan": "~1.0.0",
+    "cookie-parser": "~1.0.1",
+    "body-parser": "~1.0.0",
+    "debug": "~0.7.4",
+    "ejs": "~2.3.3",
+    "underscore": "~1.8.3",
+    "http": "0.0.0",
+    "node-rest-client": "~1.5.1",
+    "mathjs": "~2.1.1"
+  }
+}

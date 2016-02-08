@@ -1,0 +1,30 @@
+<% include partials/header.ejs %>
+
+<br/> 
+
+<br/><br/><br/>
+
+<div id="pagecontent">
+<div id="pagearticle">
+<div id="items" style="width:930px;padding:20px;">
+<div style="border-radius:2px 2px 2px 2px;background:#3c9cd6;" width="921" height="20"><center>
+<h4 style="color:white;">You are search for <%= query %></h4></center></div>
+<table>
+
+ <% result.forEach(function(searchResult){ %> 
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img alt='<%= searchResult.Title %>' style='width:135px;height:135px;border:1px solid grey;' src='<%= searchResult.Image %>'/><br/><br/></td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='font-family:Lucida Grande, Lucida Sans Unicode, Tahoma, sans-serif;font-size: 1.15em;' href="/result/<%= searchResult.ID %>"><%= searchResult.Title %></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='font-family:Lucida Grande, Lucida Sans Unicode, Tahoma, sans-serif;font-size: 0.85em;'>Sub Title: <%= searchResult.SubTitle  %></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='font-family:Lucida Grande, Lucida Sans Unicode, Tahoma, sans-serif;font-size: 0.85em;'>ISBN: <%= searchResult.isbn  %></a><br/>
+</td>
+</tr>
+<% });  %>
+</table><br/>
+<center><h2 style="font-family:Lucida Grande, Lucida Sans Unicode, Tahoma, sans-serif;font-size: 1.80em;color:#606060;"><a style="color:#616161;" title="Movies - | Prev |" href="/search/<%= query %>/<%= prev %>">Prev</a> | <a style="color:#616161;" title="Movies - | Next |" href="/search/<%= query %>/<%= next %>">Next</a> </h2></center>
+</div></div>
+
+</div>
+
+<br/><br/><br/>
+<% include partials/footer.ejs %>
