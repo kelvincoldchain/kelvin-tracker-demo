@@ -1,16 +1,132 @@
-<% include partials/header.ejs %>
-   
-<center> 
-<h1 style="font-family:Lucida Grande, Lucida Sans Unicode, Tahoma, sans-serif;font-size: 2em">Searching is directly proportional to the knowledge </h1><br/>
-<form  method="post" action="/post_search" id="gsearchForm">
-<fieldset>
-<input  type="text" name="dash" id="gsearch1" placeholder="Book Title | ISBN Number | Author | Random Search">
-<input type="submit" value="Submit" id="gsubmitButton"/>
-
-</fieldset>
-</form></center>
-<div id="resultsDiv"></div><br/> 
+<!doctype html>
 
 
+<!-- Declares Hash Lucy as the starting Angular module -->
+<html class="no-js" ng-app="HashLucy">
+<head>
+    <meta charset="utf-8">
+    <title>Near You</title>
+  
+  
+  
+  
 
-<% include partials/footer.ejs %>
+    <meta name="description" content="Testing">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js" ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+<script>
+ var socket = io.connect('http://localhost:3000');
+ socket.on('check', function(data){
+       
+         data.forEach(function(d){
+          var t = d.analogData.split(":");
+  if(d.m==1){
+  
+  $("#speed_"+d.id).text(d.speed);
+  $("#temp_"+d.id).text(t[1]);
+  $("#speed_"+d.id).css("background-color", "red");
+  $("#temp_"+d.id).css("background-color", "red");
+  }else{
+  $("#speed_"+d.id).text(d.speed);
+  $("#temp_"+d.id).text(t[1]);
+  $("#speed_"+d.id).css("background-color", "green");
+  $("#temp_"+d.id).css("background-color", "green");
+  }
+  });
+      });
+
+
+
+</script>
+
+
+</head>
+
+<body >
+
+<div class="container">
+    <!-- Header Menu. Note use of headerCtrl -->
+    <div class="header">
+
+        <!-- Header items are made active upon selection -->
+        <ul class="nav nav-pills pull-right">
+             <li >
+             <div class="row">
+      
+		<!-- Our Special dropdown has class show-on-hover -->
+        <div class="btn-group show-on-hover">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Action <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="notification">
+            <li><a href="#">Action</a></li>
+            <li><a href="/" >Monitor</a></li>
+            <li><a href="/add" >Add</a></li>
+            <li><a href="/notify" >Notification</a></li>
+          </ul>
+        </div>
+
+	</div>
+  <br />
+             
+             </li>
+        </ul>
+
+        <!-- Header Title -->
+        <h3 class="text-muted">Near You</h3>
+    </div>
+
+    
+    <div class="row content">
+
+       
+        <div class="col-md-12">
+          
+
+
+	<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>vehicle Number</th>
+      <th>Speed</th>
+      <th>Temp</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% var j =0; for(var i in result){ %>
+    <tr>
+    <% result[i].forEach(function(d){ var t = d.analogData.split(":"); %>
+      <th scope="row"><%= j %></th>
+      <td><%= d.regNo %></td>
+      <td id="speed_<%= j %>" class="white"><%= d.speed %></td>
+      <td id="temp_<%= j %>" class="white"><%= t[1] %></td>
+      <% }); %>
+    </tr>
+    <% j++; }; %>
+
+  </tbody>
+</table>
+
+
+        </div>
+
+       
+       
+
+    </div>
+    <hr/>
+
+    <!-- Footer -->
+    <div class="footer">
+         </div>
+
+</div>
+ <div class='notifications top-left'></div>
+</body>
+</html>

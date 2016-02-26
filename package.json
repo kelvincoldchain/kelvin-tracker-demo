@@ -1,11 +1,11 @@
 {
-  "name": "ITBooks",
+  "name": "app",
   "version": "1.0.0",
-  "description": "You can download any book related to computer",
+  "description": "Api",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
-      },
+  },
   "author": "Yuvraj (Backchod Billa)",
   "dependencies": {
     "express": "~4.13.3",
@@ -16,8 +16,7 @@
     "debug": "~0.7.4",
     "ejs": "~2.3.3",
     "underscore": "~1.8.3",
-    "http": "0.0.0",
-    "node-rest-client": "~1.5.1",
-    "mathjs": "~2.1.1"
+    "socket.io": "~1.4.5",
+    "mongoose": "~4.4.4"
   }
 }

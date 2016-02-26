@@ -4,12 +4,14 @@ var path = require('path');
 var _ = require('underscore');
 var http = require('http');
 var math = require('mathjs');
+var mongoose = require('mongoose');
 var request = require("request")
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var app = express();  // create  a variable app so we can use express
-
+var server = app.listen(3000);
+var io = require('socket.io').listen(server);
 app.locals.metaTag = "";
 app.locals.metaDescription = "";
 app.locals.metaTitle = "Download any book";
@@ -17,120 +19,151 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
+var Trip = require('./models/trip');
+var Notify = require('./models/notify');
 app.use(express.static(path.join(__dirname, 'public')));
-
+mongoose.connect('mongodb://localhost:27017/kelvin');
 app.set('view engine','ejs'); // set the template engine
+Trip.find({status : 1},function(err, a) {
+						   app.locals.trip = JSON.stringify(a);
+			});
+function check(){
+  	var request = require('request'),
+						username = "kelvinvts",
+						password = "trackit",
+						url = "http://blazer7.geotrackers.co.in/GTWS/gtWs/LocationWs/getUsrLatestLocation",
+						auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
+
+				request(
+					{
+						url : url,
+						headers : {
+							"Authorization" : auth
+						}
+					},
+					function (error, re, body) {
+						
+						body = JSON.parse(body);
+						var data = [];
+						var j=0;
+					 for(var i in body){
+						    body[i].forEach(function(d){
+								d.id = j;
+								var t = d.analogData.split(":");
+								JSON.parse(app.locals.trip).forEach(function(e){
+										if(d.regNo==e.vehicle){
+											
+											if(e.low<=t[1]>=e.high){
+													Notify.findOneAndUpdate(
+												    {vehicle:d.regNo  },
+												    {$push: {data: d}},
+												    {safe: true, upsert: true},
+												    function(err, model) {
+												        
+												    });
+													
+												
+												d.m = 1;
+												 data.push(d);
+											}else{
+												d.m = 0;
+												 data.push(d);
+											}
+										}
+								});
+								j++;
+						 
+					 });
+					 }
+					 Notify.find({},function(weed){
+					 		io.emit('notification', weed);	
+					 });
+						//console.log(data);
+					 io.emit('check', data);
+					 	check()
+				
+				}
+			)
+
+}
+check();
+
+
 
 app.get('/',function(request,response){
-	response.render("index");
+					var request = require('request'),
+						username = "kelvinvts",
+						password = "trackit",
+						url = "http://blazer7.geotrackers.co.in/GTWS/gtWs/LocationWs/getUsrLatestLocation",
+						auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
+
+				request(
+					{
+						url : url,
+						headers : {
+							"Authorization" : auth
+						}
+					},
+					function (error, res, body) {
+						
+						body = JSON.parse(body);
+					
+						
+					response.render("index",{result:body});
+					}
+				);
+	
 }); // Use for routing index page
 
-app.get('/search/:category/:page',function(request,response){
-
-	var search =  request.params.category;
-    var page_number = request.params.page;
-	app.locals.query = search;
-	var result = "";
-	if(page_number != 0 && page_number != 1){
-	 app.locals.prev = parseInt(page_number)-1;
-	 app.locals.next = parseInt(page_number)+1;
-     }else{
-     app.locals.prev = parseInt(page_number);
-	 app.locals.next = parseInt(page_number)+1;
-	 }
-	  var url = "http://it-ebooks-api.info/v1/search/"+search+"/page/"+page_number;
-  
-	  //console.log("Connecting to "+url);
-	http.get(url, function(res) {
-    var body = '';
-
-    res.on('data', function(chunk) {
-        body += chunk;
-    });
-
-    res.on('end', function() {
-        var fbResponse = JSON.parse(body)
-        if(fbResponse.Error==0 && fbResponse.Page){
-			//console.log(fbResponse );
-			response.render("search_result",{result:fbResponse.Books});
-		}else{
-			response.render("error");
-		}
+app.get('/notify',function(request,response){
+	Notify.find({},function(err, weed){
 		
-    });
-}).on('error', function(e) {
-      console.log("Got error: ", e);
-});	
+					 		response.render("notification",{result:weed});	
+					 });
+				
+}); // Use for routing index page
 
-}); // Use for routing search result page
+app.get('/notification/:queryId',function(request,response){
+	var objId = request.params.queryId;
+	Notify.find({"_id":objId},function(err, weed){
+							console.log(weed[0]);
+					response.render("track",{result:weed});	
+					 		
+					 });
+				
+}); // Use for routing index page
 
 
-app.post('/post_search/',function(request,response){
+app.post('/add_trip',function(request,response){
+	var trip = new Trip()
+	trip.name = request.body.clientName;
+	trip.vehicle   = request.body.vehicleNumber;
+	trip.destination = request.body.to;
+	trip.source = request.body.from;
+	trip.low = request.body.low;
+	trip.high = request.body.high;
+	trip.status = 1;
+	trip.save(function(err) {
+    if (err)
+       console.log(err);
+         var notify = new Notify();
+		 notify.vehicle = d.regNo;
+		 notify.data = [];
+		 notify.save(function(err){
+					if (err)
+      				console.log(err);
+      	});
 
-	var search =  request.body.dash;
-  
-	app.locals.query = search;
-	var result = "";
-	  var url = "http://it-ebooks-api.info/v1/search/"+search;
-	 // console.log("Connecting to "+url);
-	http.get(url, function(res) {
-    var body = '';
-
-    res.on('data', function(chunk) {
-        body += chunk;
-    });
-
-    res.on('end', function() {
-        var fbResponse = JSON.parse(body)
-        if(fbResponse.Error==0 && fbResponse.Page){
-			//console.log(fbResponse );
-			response.render("search_result",{result:fbResponse.Books});
-		}else{
-			response.render("error");
-		}
-		
-    });
-}).on('error', function(e) {
-      console.log("Got error: ", e);
-});	
-
-}); // Use for routing search result page
-
-app.get('/result/:category?',function(request,response){
-
-	var search =  request.params.category;
-  
+    response.render("add");
+  });
 	
-	var result = "";
-	  var url = "http://it-ebooks-api.info/v1/book/"+search;
-	//  console.log("Connecting to "+url);
-	http.get(url, function(res) {
-    var body = '';
-
-    res.on('data', function(chunk) {
-        body += chunk;
-    });
-
-    res.on('end', function() {
-        var fbResponse = JSON.parse(body)
-			
-			if(fbResponse.Error==0 && fbResponse.Page){
-			response.render("result",{result:fbResponse});
-			
-		}
-		
-    });
-}).on('error', function(e) {
-      response.render("error");
-});	
+})
+app.get('/add',function(request,response){
+	
+	response.render("add");
+})
 
 
-}); // Use for routing search result page
 
 
-app.get('*',function(request,response){
-	response.render("error");
-}); // Use for routing 404 page
-
-app.listen(3000);
 console.log("Listening on port: 3000 " );

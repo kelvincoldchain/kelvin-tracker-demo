@@ -1,0 +1,137 @@
+<!doctype html>
+
+
+<!-- Declares Hash Lucy as the starting Angular module -->
+<html class="no-js" ng-app="HashLucy">
+<head>
+    <meta charset="utf-8">
+    <title>Near You</title>
+  
+  
+  
+  
+
+    <meta name="description" content="Testing">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js" ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+<script>
+ var socket = io.connect('http://localhost:3000');
+
+ socket.on('check', function(data){
+        
+         data.forEach(function(d){
+          var t = d.analogData.split(":");
+  if(d.m==1){
+  $("#truck_"+d.id).css("background-color", "red");
+  $("#temp_"+d.id).text(d.speed);
+  $("#temp_"+d.id).text(t[1]);
+  
+  $("#temp_"+d.id).css("background-color", "red");
+  }else{
+ $("#truck_"+d.id).css("background-color", "green");
+  $("#speed_"+d.id).text(d.speed);
+  $("#temp_"+d.id).text(t[1]);
+  }
+  });
+      });
+
+
+
+</script>
+
+
+</head>
+
+<body >
+
+<div class="container">
+    <!-- Header Menu. Note use of headerCtrl -->
+    <div class="header">
+
+        <!-- Header items are made active upon selection -->
+        <ul class="nav nav-pills pull-right">
+             <li >
+             <div class="row">
+      
+		<!-- Our Special dropdown has class show-on-hover -->
+        <div class="btn-group show-on-hover">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Action <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="notification">
+            <li><a href="#">Action</a></li>
+            <li><a href="/" >Monitor</a></li>
+            <li><a href="/add" >Add</a></li>
+            <li><a href="/notify" >Notification</a></li>
+          </ul>
+        </div>
+
+	</div>
+  <br />
+             
+             </li>
+        </ul>
+
+        <!-- Header Title -->
+        <h3 class="text-muted">Near You</h3>
+    </div>
+
+    
+    <div class="row content">
+
+       
+        <div class="col-md-12">
+          
+
+
+	<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>vehicle Number</th>
+      <th>Last Update</th>
+      <th>Temp Status</th>
+       <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="data">
+  <% j=0 ;result.forEach(function(d){  var e = d.data.reverse();
+    var t = d.data[0].analogData.split(":");
+
+   %>
+    <tr id="truck_<%= j %>">
+    
+      <th scope="row"><%= result %></th>
+      <td><a href="/notification/<%= d._id %>" ><%= d.vehicle %></a></td>
+      <td id="last_<%= j %>" class="white"><%= d.reg_time  %></td>
+      <td id="temp_<%= j %>" class="white"><%= t[1] %></td>
+      <td id="status_<%= j %>" class="white"><%= d.data[0].locStr %></td>
+      
+    </tr>
+    <% j++; }); %>
+
+  </tbody>
+</table>
+
+
+        </div>
+
+       
+       
+
+    </div>
+    <hr/>
+
+    <!-- Footer -->
+    <div class="footer">
+         </div>
+
+</div>
+ <div class='notifications top-left'></div>
+</body>
+</html>
