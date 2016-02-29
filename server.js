@@ -31,8 +31,10 @@ function check(){
 						username = "kelvinvts",
 						password = "trackit",
 						url = "http://blazer7.geotrackers.co.in/GTWS/gtWs/LocationWs/getUsrLatestLocation",
-						auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
-
+						auth = "Basic " + new Buffer(username + ":" + password).toString("base64"),
+						 url2 = "http://integration.novire.com/ws3/rest/controller/services/"+encodeURIComponent(JSON.stringify({method:'ref_CurrentStatusDataSendWF',username:'kelvin_int',password:'password1'}))+"/"+encodeURIComponent(JSON.stringify({vehicleNo:''}));
+	 		
+var body =[];
 				request(
 					{
 						url : url,
@@ -40,9 +42,37 @@ function check(){
 							"Authorization" : auth
 						}
 					},
-					function (error, re, body) {
+					function (error, re, weed) {
 						
-						body = JSON.parse(body);
+						data = JSON.parse(weed);
+						for(var i in data){
+							body.push(data[i]);
+						}
+						
+						request({url:url2,
+								 	  method: 'GET',
+								 headers: {
+							     'Content-Type': 'application/json'
+							  }},function(err,res,weed){
+							  		var dummy = JSON.parse(weed);
+
+							  				dummy.outputlst.forEach(function(e){
+							  					var temp1  = {};
+							  					temp1.speed     =e.ref_velocity;
+									 			temp1.analogData  = "Temperature:"+e.ref_tempT1+"°C";
+									 			temp1.regNo = e.ref_vehicleNumber;
+									 			temp1.locStr = e.ref_doorStatus;
+									 			temp1.timestamp = e.ref_utctime;
+
+									 			var temp =[];
+							  				 	temp.push(temp1);
+							  				 
+									 					body.push(temp);
+									 			
+									 			
+							  				});
+
+							  			});
 						var data = [];
 						var j=0;
 					 for(var i in body){
@@ -70,23 +100,25 @@ function check(){
 											}
 										}
 								});
+
 								j++;
 						 
 					 });
+						    
 					 }
 					 Notify.find({},function(weed){
 					 		io.emit('notification', weed);	
 					 });
 						//console.log(data);
 					 io.emit('check', data);
-					 	check()
+					 	check();
 				
 				}
 			)
 
 }
-check();
 
+check();
 
 
 app.get('/',function(request,response){
@@ -132,7 +164,7 @@ var body =[];
 									 			
 							  				});
 							  	
-							  					console.log(body);
+							  					
 							  		response.render("index",{result:body});
 							  			
 								 			
