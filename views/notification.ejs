@@ -100,20 +100,24 @@
     </tr>
   </thead>
   <tbody id="data">
-  <% j=0 ;result.forEach(function(d){  var e = d.data.reverse();
+  <% j=0 ;
+
+  result.forEach(function(d){  
+  if(d.data.length>0){
+  var e = d.data.reverse();
     var t = d.data[0].analogData.split(":");
 
    %>
     <tr id="truck_<%= j %>">
     
-      <th scope="row"><%= result %></th>
+      <th scope="row"><%= j+1 %></th>
       <td><a href="/notification/<%= d._id %>" ><%= d.vehicle %></a></td>
       <td id="last_<%= j %>" class="white"><%= d.reg_time  %></td>
       <td id="temp_<%= j %>" class="white"><%= t[1] %></td>
       <td id="status_<%= j %>" class="white"><%= d.data[0].locStr %></td>
       
     </tr>
-    <% j++; }); %>
+    <% j++; } }); %>
 
   </tbody>
 </table>

@@ -3,7 +3,6 @@ var express = require('express');
 var path = require('path');
 var _ = require('underscore');
 var http = require('http');
-var math = require('mathjs');
 var mongoose = require('mongoose');
 var request = require("request")
 var logger = require('morgan');
@@ -52,8 +51,8 @@ function check(){
 								var t = d.analogData.split(":");
 								JSON.parse(app.locals.trip).forEach(function(e){
 										if(d.regNo==e.vehicle){
-											
-											if(e.low<=t[1]>=e.high){
+											//console.log(e.low+'----'+e.high);
+											if(e.low<=t[1]<=e.high){
 													Notify.findOneAndUpdate(
 												    {vehicle:d.regNo  },
 												    {$push: {data: d}},
@@ -63,7 +62,7 @@ function check(){
 												    });
 													
 												
-												d.m = 1;
+												 d.m = 1;
 												 data.push(d);
 											}else{
 												d.m = 0;
@@ -95,8 +94,10 @@ app.get('/',function(request,response){
 						username = "kelvinvts",
 						password = "trackit",
 						url = "http://blazer7.geotrackers.co.in/GTWS/gtWs/LocationWs/getUsrLatestLocation",
-						auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
-
+						auth = "Basic " + new Buffer(username + ":" + password).toString("base64"),
+						 url2 = "http://integration.novire.com/ws3/rest/controller/services/"+encodeURIComponent(JSON.stringify({method:'ref_CurrentStatusDataSendWF',username:'kelvin_int',password:'password1'}))+"/"+encodeURIComponent(JSON.stringify({vehicleNo:''}));
+	 		
+var body =[];
 				request(
 					{
 						url : url,
@@ -104,14 +105,43 @@ app.get('/',function(request,response){
 							"Authorization" : auth
 						}
 					},
-					function (error, res, body) {
+					function (error, res, weed) {
 						
-						body = JSON.parse(body);
+						data = JSON.parse(weed);
+						for(var i in data){
+							body.push(data[i]);
+						}
+						
+						request({url:url2,
+								 	  method: 'GET',
+								 headers: {
+							     'Content-Type': 'application/json'
+							  }},function(err,res,weed){
+							  		var data = JSON.parse(weed);
+
+							  				data.outputlst.forEach(function(e){
+							  					var temp1  = {};
+							  					temp1.speed     =e.ref_velocity;
+									 			temp1.analogData  = "Temperature:"+e.ref_tempT1+"°C";
+									 			temp1.regNo = e.ref_vehicleNumber;
+									 			var temp =[];
+							  				 	temp.push(temp1);
+							  				 
+									 					body.push(temp);
+									 			
+									 			
+							  				});
+							  	
+							  					console.log(body);
+							  		response.render("index",{result:body});
+							  			
+								 			
+								 });
+													
 					
-						
-					response.render("index",{result:body});
 					}
 				);
+				
 	
 }); // Use for routing index page
 
@@ -126,7 +156,7 @@ app.get('/notify',function(request,response){
 app.get('/notification/:queryId',function(request,response){
 	var objId = request.params.queryId;
 	Notify.find({"_id":objId},function(err, weed){
-							console.log(weed[0]);
+							
 					response.render("track",{result:weed});	
 					 		
 					 });
@@ -162,6 +192,7 @@ app.get('/add',function(request,response){
 	
 	response.render("add");
 })
+
 
 
 

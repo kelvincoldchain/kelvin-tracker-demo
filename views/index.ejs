@@ -99,16 +99,19 @@
     </tr>
   </thead>
   <tbody>
-  <% var j =0; for(var i in result){ %>
+  <% var j =0; for(var i in result){ 
+     var  data = JSON.stringify(result[i]);
+     data = JSON.parse(data);
+  %>
     <tr>
-    <% result[i].forEach(function(d){ var t = d.analogData.split(":"); %>
+   <% data.forEach(function(d){ var t = d.analogData.split(":"); %>
       <th scope="row"><%= j %></th>
       <td><%= d.regNo %></td>
       <td id="speed_<%= j %>" class="white"><%= d.speed %></td>
       <td id="temp_<%= j %>" class="white"><%= t[1] %></td>
       <% }); %>
     </tr>
-    <% j++; }; %>
+    <% j++;   }; %>
 
   </tbody>
 </table>
